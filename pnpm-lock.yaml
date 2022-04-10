@@ -26,19 +26,19 @@ importers:
       typescript: 4.6.3
       vite: 2.8.6_sass@1.49.9
 
-  packages/mypackage:
-    specifiers: {}
-
-  playground:
+  demo:
     specifiers:
-      mypackage: workspace:*
+      rolloc: workspace:*
       typescript: ^4.5.4
       vite: ^2.8.0
     dependencies:
-      mypackage: link:../packages/mypackage
+      rolloc: link:../packages/rolloc
     devDependencies:
       typescript: 4.6.3
       vite: 2.8.6_sass@1.49.9
+
+  packages/rolloc:
+    specifiers: {}
 
 packages:
 
