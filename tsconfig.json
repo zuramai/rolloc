@@ -16,7 +16,7 @@
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "mypackage": ["./packages/mypackage/src/index.ts"]
+      "rolloc": ["./src/index.ts"]
     }
   }
 }
