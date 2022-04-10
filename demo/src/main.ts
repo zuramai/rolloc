@@ -5,9 +5,4 @@ import Rolloc from '../../packages/rolloc/src/Rolloc'
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-const rolloc = createRolloc("#roller", {
-    size: {
-        width: 100,
-        height: 100
-    }
-})
+// const rolloc = createRolloc("#roller", {})

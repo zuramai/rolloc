@@ -1,11 +1,18 @@
 import { RollocOptions } from "./types";
 
+const defaultOptions: RollocOptions = {
+    size: {
+        height: 400,
+        width: 400
+    }
+}
 export default class Rolloc {
     el: SVGElement
     options: RollocOptions
+    readonly ns = "http://www.w3.org/2000/svg"
 
     constructor(el: HTMLElement|string, options?: Partial<RollocOptions>) {
-        this.options = options
+        this.options = {...defaultOptions,...options}
         this.mount(el)
     }
 
@@ -24,8 +31,16 @@ export default class Rolloc {
         if (!wrapperEl)
             throw new Error('[rolloc] target element not found')
 
-        this.el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.el = document.createElementNS(this.ns, "svg");
+        let [w,h] = [this.options.size.width.toString(),this.options.size.height.toString()]
+        this.el.setAttributeNS(null, "viewBox", `0 0 ${w} ${h}`)
+        this.el.setAttributeNS(null, "width", w.toString())
+        this.el.setAttributeNS(null, "height", h.toString())
         wrapperEl.appendChild(this.el)
+    }
+
+    draw() {
+        
     }
 
 }

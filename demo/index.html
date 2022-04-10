@@ -5,10 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
+    <style>
+      .rolloc__arrow {
+        transform-box: fill-box;
+        transform: translate(20px,20px);
+        animation: move 1s infinite linear;
+      }
+      @keyframes move {
+        from {
+          rotate: 0
+        }
+        to {
+          rotate: 360deg
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app">
-      <div id="roller"></div>
+      <div id="roller">
+        <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+          <circle class="rolloc__outer-circle" cx="200" cy="200" r="200" fill="transparent" stroke="#333"></circle>
+          <circle class="rolloc__inner-circle" cx="200" cy="200" r="20" fill="#ccc" stroke="#333"></circle>
+          <line class="rolloc__arrow" x1="200" x2="300" y1="200" y2="300" stroke="black"></line>
+        </svg>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
