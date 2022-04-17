@@ -1,4 +1,5 @@
 import { RollocOptions, RollOptions } from "./types";
+import "./css/rolloc.css"
 
 const defaultOptions: RollocOptions = {
     size: {
@@ -11,22 +12,23 @@ const defaultOptions: RollocOptions = {
 }
 export default class Rolloc {
     el: SVGElement
-    options: RollocOptions
-    public static readonly ns = "http://www.w3.org/2000/svg"
+    private options: RollocOptions
+    private degreeRotated: number = 0
+    static readonly ns = "http://www.w3.org/2000/svg"
 
     constructor(el: HTMLElement|string, options?: Partial<RollocOptions>) {
         this.options = {...defaultOptions,...options}
         this.mount(el)
     }
 
-    resolveSelector<T>(selector: string | T | null | undefined): T | null {
+    private resolveSelector<T>(selector: string | T | null | undefined): T | null {
         if (typeof selector === 'string')
           return document.querySelector(selector) as unknown as T
         else
           return selector || null
     }
 
-    mount(el: HTMLElement|string) {
+    private mount(el: HTMLElement|string) {
         if (this.el)
             throw new Error('[rolloc] already mounted, unmount previous target first')
 
@@ -46,35 +48,43 @@ export default class Rolloc {
         wrapperEl.appendChild(this.el)
     }
 
-    draw() {
+    private draw() {
         let outerCircle = createElementNS("circle", { 
-            cx: 200, cy: 200, r: 200, fill:"transparent", stroke: "#333" 
+            class: "rolloc__outer-circle", cx: 200, cy: 200, r: 200, fill:"transparent", stroke: "#333" 
         })
         let innerCircle = createElementNS("circle", { 
-            cx: 200, cy: 200, r: 20, fill:"#ccc", stroke: "#333" 
+            class: "rolloc__inner-circle", cx: 200, cy: 200, r: 20, fill:"#ccc", stroke: "#333", 
         })
         let line = createElementNS("line", { 
-            x1: 200, x2: 300, y1: 200, y2: 300, stroke: 'black'
+            class: 'rolloc__arrow', x1: 200, x2: 300, y1: 200, y2: 300, stroke: 'black'
         })
         
         this.el.appendChild(outerCircle)
-                .appendChild(innerCircle)
-                .appendChild(line)
+        this.el.appendChild(innerCircle)
+        this.el.appendChild(line)
+
+        line.setAttribute('style',`transform-box: fill-box; transform: translate(20px, 20px);`)
     }
 
-    roll(options: RollOptions) {
+    public roll(options?: RollOptions) {
         // Override the default options
         options = {...this.options.rollOptions,...options}
 
         let line = this.el.querySelector<SVGLineElement>('.rolloc__arrow')
-        let d = options.duration
+        let d = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
+
         line.animate(
             [
                 { rotate: "2700deg" }
             ], 
             {
-                duration: typeof d == 'object' ? Math.floor(Math.random() * (d.max - d.min + 1) + d.min) : options.duration.toString()
+                duration: d,
+                fill: "forwards"
             }
+        )
+
+        return new Promise((resolve: Function) => 
+            setTimeout(() => resolve(), d)
         )
 
     }
