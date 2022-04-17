@@ -1,12 +1,18 @@
 import './style.css'
 
 import { createRolloc } from "rolloc"
-import Rolloc from '../../packages/rolloc/src/Rolloc'
-
-const app = document.querySelector<HTMLDivElement>('#app')!
 
 const rolloc = createRolloc("#roller")
-rolloc.roll({ duration: 2000 })
-    .then(() => {
-        rolloc.roll({ duration: 10000 })
-    })
+let btnRoll = document.querySelector('button')
+
+
+btnRoll.addEventListener('click', e => {
+    e.preventDefault()
+    let input = document.querySelector('input')
+
+    rolloc.roll({ duration: ~~input.value })
+        .then(() => {
+            alert("success roll")
+        })
+})
+

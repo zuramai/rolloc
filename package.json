@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zuramai/vite-ts-starter.git"
+    "url": "git+https://github.com/zuramai/rolloc.git"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.16.1",

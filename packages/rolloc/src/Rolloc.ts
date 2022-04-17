@@ -71,20 +71,25 @@ export default class Rolloc {
         options = {...this.options.rollOptions,...options}
 
         let line = this.el.querySelector<SVGLineElement>('.rolloc__arrow')
-        let d = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
+        let duration = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
+        
+        let rotateAmount = duration
+        console.log(duration)
+        this.degreeRotated += rotateAmount
 
         line.animate(
             [
-                { rotate: "2700deg" }
+                { rotate: this.degreeRotated+"deg" }
             ], 
             {
-                duration: d,
-                fill: "forwards"
+                duration: duration,
+                fill: "forwards",
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)"
             }
         )
 
         return new Promise((resolve: Function) => 
-            setTimeout(() => resolve(), d)
+            setTimeout(() => resolve(), duration)
         )
 
     }

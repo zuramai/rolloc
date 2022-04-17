@@ -5,19 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
-    <style>
-     
-    </style>
   </head>
   <body>
     <div id="app">
-      <div id="roller">
-        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"> 
-          <circle class="rolloc__outer-circle" cx="200" cy="200" r="200" fill="transparent" stroke="#333"></circle>
-          <circle class="rolloc__inner-circle" cx="200" cy="200" r="20" fill="#ccc" stroke="#333"></circle>
-          <line class="rolloc__arrow" x1="200" x2="300" y1="200" y2="300" stroke="black"></line>
-        </svg> -->
-      </div>
+      <div id="roller"></div>
+      <form>
+        <label for="duration">Duration (in milliseconds) :</label>
+        <input type="text" placeholder="5000" value="5000">
+        <button>Roll</button>
+      </form>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
