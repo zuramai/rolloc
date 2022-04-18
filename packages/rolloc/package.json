@@ -1,13 +1,15 @@
 {
   "name": "rolloc",
-  "version": "0.0.1",
+  "version": "0.0.2-beta.1",
   "description": "A Javascript library to create a rolling spinner",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "unpkg": "dist/index.global.js",
   "jsdelivr": "dist/index.global.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "author": "zuramai <saugi.dev@gmail.com>",
   "license": "MIT",
   "repository": {
