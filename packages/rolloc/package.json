@@ -12,10 +12,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zuramai/vite-ts-starter.git"
+    "url": "git+https://github.com/zuramai/rolloc.git"
   },
   "bugs": {
-    "url": "https://github.com/zuramai/vite-ts-starter/issues"
+    "url": "https://github.com/zuramai/rolloc/issues"
   },
   "scripts": {
     "dev": "nr tsup --watch",
