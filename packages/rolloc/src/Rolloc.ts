@@ -1,5 +1,4 @@
 import { RollocOptions, RollOptions } from "./types";
-import "./css/rolloc.css"
 
 const defaultOptions: RollocOptions = {
     size: {
@@ -8,7 +7,8 @@ const defaultOptions: RollocOptions = {
     },
     rollOptions: {
         duration: 5000
-    }
+    },
+    items: []
 }
 export default class Rolloc {
     el: SVGElement
@@ -62,8 +62,31 @@ export default class Rolloc {
         this.el.appendChild(outerCircle)
         this.el.appendChild(innerCircle)
         this.el.appendChild(line)
+        this.el.appendChild(this.drawItems())
 
         line.setAttribute('style',`transform-box: fill-box; transform: translate(20px, 20px);`)
+    }
+
+    private drawItems() {
+        let g = createElementNS("g", { class: "rolloc__item-group" })
+        let items: SVGPathElement[] = []
+        let itemLength = this.options.items.length
+        
+        for(let i = 0; i < itemLength; i++) {
+            let d = []
+
+            // Build the path d
+            let degPerItem = (1 / itemLength)  * 360
+            let deg = { start: i * degPerItem, end: i+1 * degPerItem }
+
+            // Push it to `d`
+            let path = createElementNS("path", { d: d.join(" ") })
+            items.push(path)
+
+            g.appendChild(path)
+        }
+        
+        return g
     }
 
     public roll(options?: RollOptions) {
@@ -93,12 +116,11 @@ export default class Rolloc {
         )
 
     }
-
 }
-function createElementNS(name: keyof SVGElementTagNameMap, props: {[key: string]: string|number}) {
+
+function createElementNS<T extends keyof SVGElementTagNameMap>(name: T, props: {[key: string]: string|number}): SVGElementTagNameMap[T] {
     let el = document.createElementNS(Rolloc.ns, name)
     
     Object.keys(props).forEach(p => el.setAttribute(p, props[p].toString()))
     return el
-
 }
