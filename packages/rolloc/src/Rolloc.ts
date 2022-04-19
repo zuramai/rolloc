@@ -2,8 +2,8 @@ import { RollocOptions, RollOptions } from "./types";
 import type { Coordinate } from "./types"
 
 const defaultOptions: RollocOptions = {
-    size: 200,
-    padding: 20,
+    size: 500,
+    padding: 10,
     rollOptions: {
         duration: 5000
     },
@@ -27,10 +27,8 @@ export default class Rolloc {
           return selector || null
     }
 
-    private getCircleSize() {
-        let size = this.options.size
-        let padding = this.options.padding
-        return typeof size == 'number' ? [size-padding, size-padding] : [size.width-padding, size.height-padding]
+    private getRadius() {
+        return (this.options.size/2) - this.options.padding * 2
     }
 
     private mount(el: HTMLElement|string) {
@@ -43,13 +41,9 @@ export default class Rolloc {
 
         this.el = document.createElementNS(Rolloc.ns, "svg");
         
-        let [w,h] = this.getCircleSize()
-        w += this.options.padding
-        h += this.options.padding
-
-        this.el.setAttributeNS(null, "viewBox", `0 0 ${w} ${h}`)
-        this.el.setAttributeNS(null, "width", w.toString())
-        this.el.setAttributeNS(null, "height", h.toString())
+        this.el.setAttributeNS(null, "viewBox", `0 0 ${this.options.size} ${this.options.size}`)
+        this.el.setAttributeNS(null, "width", this.options.size.toString())
+        this.el.setAttributeNS(null, "height", this.options.size.toString())
 
         // Create elements
         this.draw()
@@ -58,15 +52,14 @@ export default class Rolloc {
     }
 
     private draw() {
-        let [w,h] = this.getCircleSize()
+        let r = this.getRadius()
         let {x, y} = this.getCenterPoint()
         let outerCircle = createElementNS("circle", { 
             class: "rolloc__outer-circle", 
             cx: x.toString(), 
             cy: y.toString(), 
-            r: (w/2).toString(), 
+            r: r.toString(), 
             fill:"white", 
-            stroke: "#333" 
         })
         let innerCircle = createElementNS("circle", { 
             class: "rolloc__inner-circle", 
@@ -79,16 +72,16 @@ export default class Rolloc {
         let line = createElementNS("line", { 
             class: 'rolloc__arrow', 
             x1: x, 
-            x2: x + w/10, 
+            x2: x + r/10, 
             y1: y, 
-            y2: y + w/10, 
+            y2: y + r/10, 
             stroke: 'black'
         })
         
         this.el.appendChild(outerCircle)
-        this.el.appendChild(innerCircle)
         this.el.appendChild(line)
         this.el.appendChild(this.drawItems())
+        this.el.appendChild(innerCircle)
 
         line.setAttribute('style',`transform-box: fill-box; transform: translate(20px, 20px);`)
     }
@@ -100,16 +93,16 @@ export default class Rolloc {
         
         for(let i = 0; i < itemLength; i++) {
             // Build the path d
-            let degPerItem = (1 / itemLength)  * 360
-            let deg = { start: i * degPerItem, end: (i+1) * degPerItem }
+            let degPerItem = (1 / itemLength) * 360
+            let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
             let degCoordinate = [this.getArcCoordinate(deg.start), this.getArcCoordinate(deg.end)]
 
             let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
             console.log(degCoordinate)
-            // this.el.appendChild(createElementNS("circle", {cx: degCoordinate[1].x, cy: degCoordinate[1].y, r:20, fill:"blue"}))
+            // this.el.appendChild(createElementNS("circle", {cx: degCoordinate[1].x, cy: degCoordinate[1].y, r:10, fill:"blue"}))
 
             // Push it to `d`
-            let path = createElementNS("path", { d, stroke: "red", fill: "none" })
+            let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })
             items.push(path)
 
             g.appendChild(path)
@@ -120,30 +113,37 @@ export default class Rolloc {
 
     private getPiePath(startPoint: Coordinate, endPoint: Coordinate) {
         let { x, y } = this.getCenterPoint()
+        let degPerItem = (1 / this.options.items.length) * 360
+        let largeArcPoint = degPerItem <= 180 ? 0 : 1
+        let r = this.getRadius()
+
         return `
             M${x},${y}
             L${startPoint.x},${startPoint.y}
-            A${x},${y} 0 1 1 ${endPoint.x} ${endPoint.y}
+            A${r},${r} 0 ${largeArcPoint} 0 ${endPoint.x} ${endPoint.y}
             L${x},${y}
             Z
         `
     }
 
     private getCenterPoint(): Coordinate {
-        return typeof this.options.size == "number" ? {x: this.options.size/2, y: this.options.size/2} : {x: this.options.size.width/2, y: this.options.size.height/2}
+        return {
+            x: this.options.size/2, 
+            y: this.options.size/2
+        } 
     }
 
     private getArcCoordinate(angle: number) {
-        let [w,h] = this.getCircleSize()
-        let center = this.getCenterPoint()
+        let r = this.getRadius()
+        let c = this.getCenterPoint()
+        console.log(`radius: `, r)
 
-        // radius = w/2 or h/2
-        let x = center.x * Math.sin(Math.PI * 2 * angle / 360)
-        let y = center.y * Math.cos(Math.PI * 2 * angle / 360)
+        let x =  r * Math.sin(Math.PI * 2 * angle / 360)
+        let y =  r * Math.cos(Math.PI * 2 * angle / 360)
         
         let point = {
-            x: Math.round(x) + w/2,
-            y: Math.round(y) + w/2,
+            x: Math.round(x * 100) / 100 + c.x,
+            y: Math.round(y * 100) / 100 + c.y,
         }
         console.log(`coordinate x = ${point.x},  y = ${point.y}`);
 
