@@ -3,7 +3,10 @@ interface Size {
     height: number
 }
 export interface RollocOptions {
-    size?: Size
+    /**
+     * Radius of the rolling circle
+     */
+    size?: Size|number
 
     // Default options used when rolling the circle
     rollOptions: RollOptions

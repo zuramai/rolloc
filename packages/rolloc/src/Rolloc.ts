@@ -1,10 +1,7 @@
 import { RollocOptions, RollOptions } from "./types";
 
 const defaultOptions: RollocOptions = {
-    size: {
-        height: 400,
-        width: 400
-    },
+    size: 400,
     rollOptions: {
         duration: 5000
     },
@@ -28,6 +25,11 @@ export default class Rolloc {
           return selector || null
     }
 
+    private getCircleSize() {
+        let size = this.options.size
+        return typeof size == 'number' ? [size, size] : [size.width,size.height]
+    }
+
     private mount(el: HTMLElement|string) {
         if (this.el)
             throw new Error('[rolloc] already mounted, unmount previous target first')
@@ -37,7 +39,9 @@ export default class Rolloc {
             throw new Error('[rolloc] target element not found')
 
         this.el = document.createElementNS(Rolloc.ns, "svg");
-        let [w,h] = [this.options.size.width.toString(),this.options.size.height.toString()]
+        
+        let [w,h] = this.getCircleSize()
+
         this.el.setAttributeNS(null, "viewBox", `0 0 ${w} ${h}`)
         this.el.setAttributeNS(null, "width", w.toString())
         this.el.setAttributeNS(null, "height", h.toString())
@@ -49,8 +53,9 @@ export default class Rolloc {
     }
 
     private draw() {
+        let [w,h] = this.getCircleSize()
         let outerCircle = createElementNS("circle", { 
-            class: "rolloc__outer-circle", cx: 200, cy: 200, r: 200, fill:"transparent", stroke: "#333" 
+            class: "rolloc__outer-circle", cx: (w/2).toString(), cy: (h/2).toString(), r: (w/2).toString(), fill:"transparent", stroke: "#333" 
         })
         let innerCircle = createElementNS("circle", { 
             class: "rolloc__inner-circle", cx: 200, cy: 200, r: 20, fill:"#ccc", stroke: "#333", 
@@ -78,7 +83,6 @@ export default class Rolloc {
             // Build the path d
             let degPerItem = (1 / itemLength)  * 360
             let deg = { start: i * degPerItem, end: i+1 * degPerItem }
-
             // Push it to `d`
             let path = createElementNS("path", { d: d.join(" ") })
             items.push(path)
