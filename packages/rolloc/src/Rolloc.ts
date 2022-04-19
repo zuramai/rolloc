@@ -82,33 +82,63 @@ export default class Rolloc {
         this.el.appendChild(line)
         this.el.appendChild(this.drawItems())
         this.el.appendChild(innerCircle)
+        this.el.appendChild(this.drawText())
 
         line.setAttribute('style',`transform-box: fill-box; transform: translate(20px, 20px);`)
     }
 
     private drawItems() {
         let g = createElementNS("g", { class: "rolloc__item-group" })
-        let items: SVGPathElement[] = []
         let itemLength = this.options.items.length
+        let r = this.getRadius()
         
         for(let i = 0; i < itemLength; i++) {
-            // Build the path d
             let degPerItem = (1 / itemLength) * 360
+
+            // Get start and end of the curve
             let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
-            let degCoordinate = [this.getArcCoordinate(deg.start), this.getArcCoordinate(deg.end)]
+
+            // Convert it to coordinate
+            let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
 
             let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
-            console.log(degCoordinate)
-            // this.el.appendChild(createElementNS("circle", {cx: degCoordinate[1].x, cy: degCoordinate[1].y, r:10, fill:"blue"}))
-
-            // Push it to `d`
             let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })
-            items.push(path)
 
             g.appendChild(path)
         }
         
         return g
+    }
+
+    private drawText() {
+        let gWrapper = createElementNS("g", { class: "rolloc__texts" })
+        let items = this.options.items
+        for(let i = 0; i < items.length; i++) {
+            let gInner = createElementNS("g", { 
+                class: "rolloc__text",
+            })
+
+            let degPerItem = (1 / items.length) * 360
+            let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
+
+            // Get the text position in the middle of the pie with radius*2/3
+            let point = this.getArcCoordinate(deg.start + (deg.end - deg.start) / 2, this.getRadius() * 2/3)
+            
+            
+            let textEl = createElementNS("text", {
+                x: point.x,
+                y: point.y,
+                "text-anchor": "middle",
+                "transform-box": "fill-box",
+                "transform-origin": "center",
+                "dominant-baseline": "middle",
+                // "transform": "rotate(30) translate(100, 30)"
+            }, items[i].text)
+
+            gInner.appendChild(textEl)
+            gWrapper.appendChild(gInner)
+        }
+        return gWrapper
     }
 
     private getPiePath(startPoint: Coordinate, endPoint: Coordinate) {
@@ -133,10 +163,8 @@ export default class Rolloc {
         } 
     }
 
-    private getArcCoordinate(angle: number) {
-        let r = this.getRadius()
+    private getArcCoordinate(angle: number, r: number) {
         let c = this.getCenterPoint()
-        console.log(`radius: `, r)
 
         let x =  r * Math.sin(Math.PI * 2 * angle / 360)
         let y =  r * Math.cos(Math.PI * 2 * angle / 360)
@@ -145,7 +173,6 @@ export default class Rolloc {
             x: Math.round(x * 100) / 100 + c.x,
             y: Math.round(y * 100) / 100 + c.y,
         }
-        console.log(`coordinate x = ${point.x},  y = ${point.y}`);
 
         return point
     }
@@ -179,9 +206,11 @@ export default class Rolloc {
     }
 }
 
-function createElementNS<T extends keyof SVGElementTagNameMap>(name: T, props: {[key: string]: string|number}): SVGElementTagNameMap[T] {
+function createElementNS<T extends keyof SVGElementTagNameMap>(name: T, props: {[key: string]: string|number}, content: string = ""): SVGElementTagNameMap[T] {
     let el = document.createElementNS(Rolloc.ns, name)
     
     Object.keys(props).forEach(p => el.setAttribute(p, props[p].toString()))
+    el.innerHTML = content
+    
     return el
 }
