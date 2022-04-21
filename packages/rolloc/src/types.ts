@@ -24,4 +24,7 @@ export interface RollocItem {
     value: string
     text?: string
     image?: string
+
+    startAngle?: number
+    endAngle?: number
 }

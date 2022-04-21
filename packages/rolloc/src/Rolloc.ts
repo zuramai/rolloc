@@ -11,6 +11,7 @@ const defaultOptions: RollocOptions = {
 }
 export default class Rolloc {
     el: SVGElement
+    private elements:  {[key: string]: SVGGraphicsElement} = {}
     private options: RollocOptions
     private degreeRotated: number = 0
     static readonly ns = "http://www.w3.org/2000/svg"
@@ -72,19 +73,21 @@ export default class Rolloc {
         let line = createElementNS("line", { 
             class: 'rolloc__arrow', 
             x1: x, 
-            x2: x + r/10, 
+            x2: x, 
             y1: y, 
-            y2: y + r/10, 
+            y2: y - r/3, 
             stroke: 'black'
         })
         
-        this.el.appendChild(outerCircle)
-        this.el.appendChild(line)
-        this.el.appendChild(this.drawItems())
-        this.el.appendChild(innerCircle)
-        this.el.appendChild(this.drawText())
+        this.appendEl("outerCircle", outerCircle)
+        this.appendEl("line", line)
+        this.appendEl("itemsGroup", this.drawItems())
+        this.appendEl("innerCircle", innerCircle)
+        this.appendEl("textGroup", this.drawText())
 
-        line.setAttribute('style',`transform-box: fill-box; transform: translate(20px, 20px);`)
+        line.setAttribute('style',`transform-origin: 100% 100%; 
+                                    transform-box: fill-box;
+                                    transform: translateY(-30px);`)
     }
 
     private drawItems() {
@@ -97,6 +100,8 @@ export default class Rolloc {
 
             // Get start and end of the curve
             let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
+            this.options.items[i].startAngle = deg.start
+            this.options.items[i].endAngle = deg.end
 
             // Convert it to coordinate
             let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
@@ -141,6 +146,11 @@ export default class Rolloc {
         return gWrapper
     }
 
+    appendEl<T extends SVGGraphicsElement>(name: string, el: T) {
+        this.el.appendChild(el as SVGGraphicsElement)   
+        this.elements[name] = el
+    }
+
     private getPiePath(startPoint: Coordinate, endPoint: Coordinate) {
         let { x, y } = this.getCenterPoint()
         let degPerItem = (1 / this.options.items.length) * 360
@@ -181,11 +191,11 @@ export default class Rolloc {
         // Override the default options
         options = {...this.options.rollOptions,...options}
 
-        let line = this.el.querySelector<SVGLineElement>('.rolloc__arrow')
+        let line = this.elements["line"]
         let duration = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
         
         let rotateAmount = duration
-        console.log(duration)
+        console.log(duration*2)
         this.degreeRotated += rotateAmount
 
         line.animate(
@@ -203,6 +213,13 @@ export default class Rolloc {
             setTimeout(() => resolve(), duration)
         )
 
+    }
+
+    private getResult() {
+        for(let i = 0; i < this.options.items.length; i++) {
+            let item = this.options.items[i]
+            item.startAngle
+        }
     }
 }
 

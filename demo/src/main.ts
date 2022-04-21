@@ -7,7 +7,7 @@ const rolloc = createRolloc("#roller", {
         { value: "grape", text: "Grape" },
         { value: "apple", text: "Apple" },
         { value: "orange", text: "Orange" },
-        { value: "lemon", text: "Lemon" },
+        // { value: "lemon", text: "Lemon" },
     ]
 })
 let btnRoll = document.querySelector('button')
