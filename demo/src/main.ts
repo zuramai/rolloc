@@ -19,7 +19,15 @@ btnRoll.addEventListener('click', e => {
     rolloc.roll({ 
         duration: ~~input.value,
     })
-    .then(() => {
-        alert("success roll")
+    .then((item) => {
+        alert("success roll, result = "+item.value)
     })
 })
+
+const canvas = document.querySelector<HTMLCanvasElement>('#canvas')
+const ctx = canvas.getContext('2d')
+
+ctx.beginPath()
+ctx.arc(50,50,25,0,Math.PI*0.3)
+ctx.stroke()
+

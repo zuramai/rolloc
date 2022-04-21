@@ -1,9 +1,9 @@
 import { RollocOptions, RollOptions } from "./types";
-import type { Coordinate } from "./types"
+import type { Coordinate, RollocItem } from "./types"
 
 const defaultOptions: RollocOptions = {
     size: 500,
-    padding: 10,
+    padding: 0,
     rollOptions: {
         duration: 5000
     },
@@ -105,13 +105,14 @@ export default class Rolloc {
 
             // Convert it to coordinate
             let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
+            console.log(this.getArcCoordinate(0, r))
 
             let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
             let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })
 
             g.appendChild(path)
         }
-        
+        console.log(this.options.items)
         return g
     }
 
@@ -176,12 +177,14 @@ export default class Rolloc {
     private getArcCoordinate(angle: number, r: number) {
         let c = this.getCenterPoint()
 
-        let x =  r * Math.sin(Math.PI * 2 * angle / 360)
-        let y =  r * Math.cos(Math.PI * 2 * angle / 360)
+        let theta = (angle - 90) * Math.PI / 180
+        
+        let x =  r * Math.cos(theta)
+        let y =  -r * Math.sin(theta)
         
         let point = {
-            x: Math.round(x * 100) / 100 + c.x,
-            y: Math.round(y * 100) / 100 + c.y,
+            x: x + c.x,
+            y: y + c.y,
         }
 
         return point
@@ -209,17 +212,22 @@ export default class Rolloc {
             }
         )
 
-        return new Promise((resolve: Function) => 
-            setTimeout(() => resolve(), duration)
+        return new Promise<RollocItem>((resolve) => 
+            setTimeout(() => resolve(this.getResult()), duration)
         )
-
     }
 
-    private getResult() {
+    private getResult(): RollocItem | null {
+        let deg = this.degreeRotated % 360 
+        console.log(deg)
         for(let i = 0; i < this.options.items.length; i++) {
             let item = this.options.items[i]
-            item.startAngle
+            if(deg > item.startAngle && deg <= item.endAngle) {
+                console.log(deg, item.startAngle, item.endAngle)
+                return item
+            }
         }
+        return null
     }
 }
 
