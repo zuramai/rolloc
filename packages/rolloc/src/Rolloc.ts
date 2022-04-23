@@ -97,7 +97,12 @@ export default class Rolloc {
         this.appendEl("innerCircle", innerCircle)
         this.appendEl("textGroup", this.drawText())
 
-        line.setAttribute('style',`transform-origin: 100% 0%; 
+
+        let transformOrigin = {
+            x: arrow.startPointAtDeg > 270 || arrow.startPointAtDeg <= 90 ? 0 : 100,
+            y: arrow.startPointAtDeg < 180 ? 0 : 100
+        }
+        line.setAttribute('style',`transform-origin: ${transformOrigin.x}% ${transformOrigin.y}%; 
                                     transform-box: fill-box;
                                     `)
     }
@@ -118,8 +123,6 @@ export default class Rolloc {
 
             // Convert it to coordinate
             let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
-
-            // console.log(this.getArcCoordinate(0, r))
 
             let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
             let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })

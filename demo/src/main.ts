@@ -8,7 +8,12 @@ const rolloc = createRolloc("#roller", {
         { value: "apple", text: "Apple" },
         { value: "orange", text: "Orange" },
         { value: "lemon", text: "Lemon" },
-    ]
+    ],
+    arrow: {
+        startPointAtDeg: 220,
+        gapFromCenter: 10,
+        lineLength: 70,
+    }
 })
 let btnRoll = document.querySelector('button')
 
@@ -18,6 +23,7 @@ btnRoll.addEventListener('click', e => {
 
     rolloc.roll({ 
         duration: ~~input.value,
+        
     })
     .then((item) => {
         alert("success roll, result = "+item.value)
