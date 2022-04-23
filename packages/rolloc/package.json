@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "nr tsup --watch",
     "tsup": "tsup src/index.ts --format esm,cjs --dts --no-splitting --clean",
-    "build": "nr tsup",
+    "build": "nr tsup --minify",
     "prepublishOnly": "nr build"
   }
 }
