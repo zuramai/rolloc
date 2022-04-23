@@ -5,6 +5,8 @@
     "play:build": "pnpm -C demo run build",
     "js:dev": "pnpm run --filter ./packages dev",
     "js:build": "pnpm run -r --filter ./packages build",
+    "test": "pnpm run -r --filter ./packages test",
+    "coverage": "pnpm run -r --filter ./packages coverage",
     "dev": "nr play:dev",
     "build": "nr js:build",
     "release": "bumpp package.json packages/*/package.json --tag --commit --push && pnpm -r publish --access public"
@@ -23,7 +25,8 @@
     "sass": "^1.49.7",
     "tsup": "^5.11.13",
     "typescript": "^4.5.4",
-    "vite": "^2.8.0"
+    "vite": "^2.8.0",
+    "vitest": "^0.9.4"
   },
   "license": "MIT",
   "version": "0.1.0"

@@ -17,7 +17,7 @@ const defaultOptions: RollocOptions = {
 export default class Rolloc {
     el: SVGElement
     private elements:  {[key: string]: SVGGraphicsElement} = {}
-    private options: RollocOptions
+    public options: RollocOptions
     private degreeRotated: number = 0
     static readonly ns = "http://www.w3.org/2000/svg"
 

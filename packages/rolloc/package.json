@@ -23,6 +23,14 @@
     "dev": "nr tsup --watch",
     "tsup": "tsup src/index.ts --format esm,cjs --dts --no-splitting --clean",
     "build": "nr tsup --minify",
-    "prepublishOnly": "nr build"
+    "prepublishOnly": "nr build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "jsdom": "^19.0.0",
+    "nr": "^0.1.0",
+    "tsup": "^5.12.6",
+    "vitest": "^0.9.4"
   }
 }
