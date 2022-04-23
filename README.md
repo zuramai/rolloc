@@ -1,5 +1,5 @@
 # Rolloc
-A Javascript library to create spin roller.
+A Javascript library to create spin roller. [Open demo](https://zuramai.github.io/rolloc/).
 
 ## Installation
 1. Install
