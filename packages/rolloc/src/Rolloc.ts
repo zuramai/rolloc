@@ -118,8 +118,8 @@ export default class Rolloc {
 
             // Get start and end of the curve
             let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
-            this.options.items[i].startAngle = deg.start
-            this.options.items[i].endAngle = deg.end
+            items[i].startAngle = deg.start
+            items[i].endAngle = deg.end
 
             // Convert it to coordinate
             let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
