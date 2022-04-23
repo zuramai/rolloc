@@ -4,6 +4,11 @@ import type { Coordinate, RollocItem } from "./types"
 const defaultOptions: RollocOptions = {
     size: 500,
     padding: 0,
+    arrow: {
+        startPointAtDeg: 100,
+        gapFromCenter: 10,
+        lineLength: 70,
+    },
     rollOptions: {
         duration: 5000
     },
@@ -18,6 +23,7 @@ export default class Rolloc {
 
     constructor(el: HTMLElement|string, options?: Partial<RollocOptions>) {
         this.options = {...defaultOptions,...options}
+
         this.mount(el)
     }
 
@@ -55,6 +61,7 @@ export default class Rolloc {
     private draw() {
         let r = this.getRadius()
         let {x, y} = this.getCenterPoint()
+        
         let outerCircle = createElementNS("circle", { 
             class: "rolloc__outer-circle", 
             cx: x.toString(), 
@@ -70,12 +77,17 @@ export default class Rolloc {
             fill:"#ccc", 
             stroke: "#333", 
         })
+
+        let arrow = this.options.arrow
+        let arrowStartPoint = this.getCenterPoint()
+        let arrowEndPoint = this.getArcCoordinate(arrow.startPointAtDeg, arrow.lineLength)
+
         let line = createElementNS("line", { 
             class: 'rolloc__arrow', 
-            x1: x, 
-            x2: x, 
-            y1: y, 
-            y2: y - r/3, 
+            x1: arrowStartPoint.x, 
+            x2: arrowEndPoint.x, 
+            y1: arrowStartPoint.y, 
+            y2: arrowEndPoint.y, 
             stroke: 'black'
         })
         
@@ -85,13 +97,14 @@ export default class Rolloc {
         this.appendEl("innerCircle", innerCircle)
         this.appendEl("textGroup", this.drawText())
 
-        line.setAttribute('style',`transform-origin: 100% 100%; 
+        line.setAttribute('style',`transform-origin: 100% 0%; 
                                     transform-box: fill-box;
-                                    transform: translateY(-30px);`)
+                                    `)
     }
 
     private drawItems() {
         let g = createElementNS("g", { class: "rolloc__item-group" })
+        let items = this.options.items
         let itemLength = this.options.items.length
         let r = this.getRadius()
         
@@ -105,14 +118,14 @@ export default class Rolloc {
 
             // Convert it to coordinate
             let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
-            console.log(this.getArcCoordinate(0, r))
+
+            // console.log(this.getArcCoordinate(0, r))
 
             let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
             let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })
 
             g.appendChild(path)
         }
-        console.log(this.options.items)
         return g
     }
 
@@ -129,8 +142,9 @@ export default class Rolloc {
 
             // Get the text position in the middle of the pie with radius*2/3
             let point = this.getArcCoordinate(deg.start + (deg.end - deg.start) / 2, this.getRadius() * 2/3)
-            
-            
+
+        
+
             let textEl = createElementNS("text", {
                 x: point.x,
                 y: point.y,
@@ -161,7 +175,7 @@ export default class Rolloc {
         return `
             M${x},${y}
             L${startPoint.x},${startPoint.y}
-            A${r},${r} 0 ${largeArcPoint} 0 ${endPoint.x} ${endPoint.y}
+            A${r},${r} 0 ${largeArcPoint} 1 ${endPoint.x} ${endPoint.y}
             L${x},${y}
             Z
         `
@@ -174,13 +188,14 @@ export default class Rolloc {
         } 
     }
 
-    private getArcCoordinate(angle: number, r: number) {
+    private getArcCoordinate(angle: number, r?: number) {
+        if(!r) r = this.getRadius()
         let c = this.getCenterPoint()
 
-        let theta = (angle - 90) * Math.PI / 180
+        let theta = (angle) * Math.PI / 180
         
         let x =  r * Math.cos(theta)
-        let y =  -r * Math.sin(theta)
+        let y =  r * Math.sin(theta)
         
         let point = {
             x: x + c.x,
@@ -197,10 +212,9 @@ export default class Rolloc {
         let line = this.elements["line"]
         let duration = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
         
-        let rotateAmount = duration
-        console.log(duration*2)
-        this.degreeRotated += rotateAmount
-
+        let rotateAmount = duration * ((Math.random() * 2) + 1)
+        this.degreeRotated += rotateAmount 
+        
         line.animate(
             [
                 { rotate: this.degreeRotated+"deg" }
@@ -218,12 +232,11 @@ export default class Rolloc {
     }
 
     private getResult(): RollocItem | null {
-        let deg = this.degreeRotated % 360 
-        console.log(deg)
+        let deg = (this.degreeRotated + this.options.arrow.startPointAtDeg) % 360 
+        
         for(let i = 0; i < this.options.items.length; i++) {
             let item = this.options.items[i]
             if(deg > item.startAngle && deg <= item.endAngle) {
-                console.log(deg, item.startAngle, item.endAngle)
                 return item
             }
         }

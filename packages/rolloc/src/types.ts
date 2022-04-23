@@ -7,11 +7,16 @@ export interface RollocOptions {
      * Radius of the rolling circle
      */
     size?: number
-
     padding?: number
 
     // Default options used when rolling the circle
     rollOptions: RollOptions
+
+    arrow?: {
+        startPointAtDeg?: number
+        lineLength?: number
+        gapFromCenter?: number
+    }
     items: RollocItem[]
 }
 export interface RollOptions {
