@@ -29,11 +29,3 @@ btnRoll.addEventListener('click', e => {
         alert("success roll, result = "+item.value)
     })
 })
-
-const canvas = document.querySelector<HTMLCanvasElement>('#canvas')
-const ctx = canvas.getContext('2d')
-
-ctx.beginPath()
-ctx.arc(50,50,25,0,Math.PI*0.3)
-ctx.stroke()
-
