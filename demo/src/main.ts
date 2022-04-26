@@ -9,10 +9,11 @@ const rolloc = createRolloc("#roller", {
         { value: "orange", text: "Orange" },
         { value: "lemon", text: "Lemon" },
     ],
-    arrow: {
-        startPointAtDeg: 220,
+    anchor: {
+        type: "line",
+        positionAngle: 220,
         gapFromCenter: 10,
-        lineLength: 70,
+        length: 70,
     }
 })
 let btnRoll = document.querySelector('button')
