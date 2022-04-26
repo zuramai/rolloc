@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "jsdom": "^19.0.0",
-    "nr": "^0.1.0",
+    "@antfu/ni": "^0.14.0",
     "tsup": "^5.12.6",
     "vitest": "^0.9.4"
   }
