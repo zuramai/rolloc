@@ -2,6 +2,8 @@ export interface Coordinate {
     x: number
     y: number
 }
+
+
 export interface RollocOptions {
     /**
      * Radius of the rolling circle
@@ -10,16 +12,33 @@ export interface RollocOptions {
     padding?: number
 
     // Default options used when rolling the circle
-    rollOptions: RollOptions
+    rollOptions?: RollOptions
 
-    arrow?: {
-        startPointAtDeg?: number
-        lineLength?: number
-        gapFromCenter?: number
-    }
+    anchor?: AnchorLineOptions | AnchorTriangleOptions
+
     items: RollocItem[]
 }
+
+interface AnchorLineOptions {
+    type: "line"
+    positionAngle?: number
+    length?: number
+    gapFromCenter?: number
+}
+
+interface AnchorTriangleOptions {
+    type: "triangle"
+    positionAngle?: number
+    length?: number
+}
+
 export interface RollOptions {
+    /**
+     * What to rotate on roll
+     * `circle`: the whole circle is to be rotated 
+     * `anchor`: only the anchor will be rotated 
+     */
+    type?: "circle" | "anchor"
     duration?: {
         min: number
         max: number

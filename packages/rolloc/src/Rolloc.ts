@@ -4,12 +4,14 @@ import type { Coordinate, RollocItem } from "./types"
 const defaultOptions: RollocOptions = {
     size: 500,
     padding: 0,
-    arrow: {
-        startPointAtDeg: 100,
+    anchor: {
+        type:"line",
+        positionAngle: 100,
         gapFromCenter: 10,
-        lineLength: 70,
+        length: 70,
     },
     rollOptions: {
+        type: "circle",
         duration: 5000
     },
     items: []
@@ -78,29 +80,33 @@ export default class Rolloc {
             stroke: "#333", 
         })
 
-        let arrow = this.options.arrow
-        let arrowStartPoint = this.getCenterPoint()
-        let arrowEndPoint = this.getArcCoordinate(arrow.startPointAtDeg, arrow.lineLength)
-
-        let line = createElementNS("line", { 
-            class: 'rolloc__arrow', 
-            x1: arrowStartPoint.x, 
-            x2: arrowEndPoint.x, 
-            y1: arrowStartPoint.y, 
-            y2: arrowEndPoint.y, 
-            stroke: 'black'
-        })
+        // Draw anchor
+        let anchorOptions = this.options.anchor
+        let anchor: SVGGeometryElement
+        if(anchorOptions.type == 'line') {
+            let arrowStartPoint = this.getCenterPoint()
+            let arrowEndPoint = this.getArcCoordinate(anchorOptions.positionAngle, anchorOptions.length)
+    
+            anchor = createElementNS("line", { 
+                class: 'rolloc__arrow', 
+                x1: arrowStartPoint.x, 
+                x2: arrowEndPoint.x, 
+                y1: arrowStartPoint.y, 
+                y2: arrowEndPoint.y, 
+                stroke: 'black'
+            })
+        }
         
         this.appendEl("outerCircle", outerCircle)
-        this.appendEl("line", line)
+        this.appendEl("anchor", anchor)
         this.appendEl("itemsGroup", this.drawItems())
         this.appendEl("innerCircle", innerCircle)
 
         let transformOrigin = {
-            x: arrow.startPointAtDeg > 270 || arrow.startPointAtDeg <= 90 ? 0 : 100,
-            y: arrow.startPointAtDeg < 180 ? 0 : 100
+            x: anchorOptions.positionAngle > 270 || anchorOptions.positionAngle <= 90 ? 0 : 100,
+            y: anchorOptions.positionAngle < 180 ? 0 : 100
         }
-        line.setAttribute('style',`transform-origin: ${transformOrigin.x}% ${transformOrigin.y}%; 
+        anchor.setAttribute('style',`transform-origin: ${transformOrigin.x}% ${transformOrigin.y}%; 
                                     transform-box: fill-box;
                                     `)
     }
@@ -206,13 +212,13 @@ export default class Rolloc {
         // Override the default options
         options = {...this.options.rollOptions,...options}
 
-        let line = this.elements["line"]
+        let anchor = this.elements["anchor"]
         let duration = typeof options.duration == 'object' ? Math.floor(Math.random() * (options.duration.max - options.duration.min + 1) + options.duration.min) : ~~options.duration
         
         let rotateAmount = duration * ((Math.random() * 2) + 1)
         this.degreeRotated += rotateAmount 
         
-        line.animate(
+        anchor.animate(
             [
                 { rotate: this.degreeRotated+"deg" }
             ], 
@@ -229,7 +235,7 @@ export default class Rolloc {
     }
 
     private getResult(): RollocItem | null {
-        let deg = (this.degreeRotated + this.options.arrow.startPointAtDeg) % 360 
+        let deg = (this.degreeRotated + this.options.anchor.positionAngle) % 360 
         
         for(let i = 0; i < this.options.items.length; i++) {
             let item = this.options.items[i]

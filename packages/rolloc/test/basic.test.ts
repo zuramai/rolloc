@@ -6,18 +6,20 @@ describe("roll", () => {
 
     it("store a correct configuration", () => {
         const rolloc = createRolloc(div, {
-            arrow: {
-                lineLength: 3
+            anchor: {
+                type: "line",
+                length: 3
             }
         })
 
-        expect(rolloc.options.arrow.lineLength).toEqual(3)
+        expect(rolloc.options.anchor.length).toEqual(3)
     })  
 
     it("should return the correct values", () => {
         const rolloc = createRolloc(div, {
-            arrow: {
-                startPointAtDeg: 0
+            anchor: {
+                type: "line",
+                positionAngle: 0
             },
             items: [
                 { value: "grape", text: "Grape"},
