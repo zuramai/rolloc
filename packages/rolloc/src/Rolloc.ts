@@ -95,8 +95,6 @@ export default class Rolloc {
         this.appendEl("line", line)
         this.appendEl("itemsGroup", this.drawItems())
         this.appendEl("innerCircle", innerCircle)
-        this.appendEl("textGroup", this.drawText())
-
 
         let transformOrigin = {
             x: arrow.startPointAtDeg > 270 || arrow.startPointAtDeg <= 90 ? 0 : 100,
@@ -108,60 +106,56 @@ export default class Rolloc {
     }
 
     private drawItems() {
-        let g = createElementNS("g", { class: "rolloc__item-group" })
+        let gEl = createElementNS("g", { class: "rolloc__item-group" })
         let items = this.options.items
-        let itemLength = this.options.items.length
+        let itemLength = items.length
         let r = this.getRadius()
         
         for(let i = 0; i < itemLength; i++) {
+            let itemEl = createElementNS("g", { class: "rolloc__item" })
+            let item = items[i]
             let degPerItem = (1 / itemLength) * 360
 
             // Get start and end of the curve
             let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
-            items[i].startAngle = deg.start
-            items[i].endAngle = deg.end
+            item.startAngle = deg.start
+            item.endAngle = deg.end
 
             // Convert it to coordinate
-            let degCoordinate = [this.getArcCoordinate(deg.start, r), this.getArcCoordinate(deg.end, r)] // [point1, point2]
-
-            let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
-            let path = createElementNS("path", { d, stroke: "black", fill: "transparent" })
-
-            g.appendChild(path)
+            let pie = this.drawPie(deg.start, deg.end, r)
+            let text = this.drawText(item.text, deg.start, deg.end, r)
+            
+            itemEl.appendChild(text)
+            itemEl.appendChild(pie)
+            gEl.appendChild(itemEl)
         }
-        return g
+        return gEl
     }
 
-    private drawText() {
-        let gWrapper = createElementNS("g", { class: "rolloc__texts" })
-        let items = this.options.items
-        for(let i = 0; i < items.length; i++) {
-            let gInner = createElementNS("g", { 
-                class: "rolloc__text",
-            })
+    private drawPie(startDeg, endDeg, r) {
+        let degCoordinate = [this.getArcCoordinate(startDeg, r), this.getArcCoordinate(endDeg, r)] // [point1, point2]
 
-            let degPerItem = (1 / items.length) * 360
-            let deg = { start: i * degPerItem, end: (i+1) * degPerItem  }
+        let d = this.getPiePath(degCoordinate[0], degCoordinate[1])
+        let path = createElementNS("path", { d, class: "rolloc__pie", stroke: "black", fill: "transparent" })
 
-            // Get the text position in the middle of the pie with radius*2/3
-            let point = this.getArcCoordinate(deg.start + (deg.end - deg.start) / 2, this.getRadius() * 2/3)
+        return path
+    }
 
-        
+    private drawText(text, startDeg, endDeg, r) {
+        // Get the text position in the middle of the pie with radius*2/3
+        let point = this.getArcCoordinate(startDeg + (endDeg - startDeg) / 2, r * 2/3)
 
-            let textEl = createElementNS("text", {
-                x: point.x,
-                y: point.y,
-                "text-anchor": "middle",
-                "transform-box": "fill-box",
-                "transform-origin": "center",
-                "dominant-baseline": "middle",
-                // "transform": "rotate(30) translate(100, 30)"
-            }, items[i].text)
+        let textEl = createElementNS("text", {
+            x: point.x,
+            y: point.y,
+            "text-anchor": "middle",
+            "transform-box": "fill-box",
+            "transform-origin": "center",
+            "dominant-baseline": "middle",
+            // "transform": "rotate(30) translate(100, 30)"
+        }, text)
 
-            gInner.appendChild(textEl)
-            gWrapper.appendChild(gInner)
-        }
-        return gWrapper
+        return textEl
     }
 
     appendEl<T extends SVGGraphicsElement>(name: string, el: T) {
