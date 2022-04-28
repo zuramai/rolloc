@@ -4,10 +4,10 @@ import { createRolloc } from "rolloc"
 
 const rolloc = createRolloc("#roller", {
     items: [
-        { value: "grape", text: "Grape" },
-        { value: "apple", text: "Apple" },
-        { value: "orange", text: "Orange" },
-        { value: "lemon", text: "Lemon" },
+        { value: "grape", text: "Grape",},
+        { value: "apple", text: "Apple",},
+        { value: "orange", text: "Orange"},
+        { value: "lemon", text: "Lemon",},
     ],
     anchor: {
         type: "line",

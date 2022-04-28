@@ -16,6 +16,7 @@ const defaultOptions: RollocOptions = {
     },
     items: []
 }
+
 export default class Rolloc {
     el: SVGElement
     private elements:  {[key: string]: SVGGraphicsElement} = {}
@@ -36,10 +37,6 @@ export default class Rolloc {
           return selector || null
     }
 
-    private getRadius() {
-        return (this.options.size/2) - this.options.padding * 2
-    }
-
     private mount(el: HTMLElement|string) {
         if (this.el)
             throw new Error('[rolloc] already mounted, unmount previous target first')
@@ -48,22 +45,90 @@ export default class Rolloc {
         if (!wrapperEl)
             throw new Error('[rolloc] target element not found')
 
-        this.el = document.createElementNS(Rolloc.ns, "svg");
-        
-        this.el.setAttributeNS(null, "viewBox", `0 0 ${this.options.size} ${this.options.size}`)
-        this.el.setAttributeNS(null, "width", this.options.size.toString())
-        this.el.setAttributeNS(null, "height", this.options.size.toString())
+        this.el = createElementNS("svg", {
+            preserveAspectRatio: "xMidYMid slice",
+            viewBox:`0 0 ${this.options.size} ${this.options.size}`,
+            width:this.options.size.toString(),
+            height:this.options.size.toString(),
+        });
 
         // Create elements
+        wrapperEl.appendChild(this.el)
         this.draw()
 
-        wrapperEl.appendChild(this.el)
+        console.log(this.options.items)
+
     }
 
     private draw() {
         let r = this.getRadius()
         let {x, y} = this.getCenterPoint()
+
+        // Inner circle and outer circle
+        let circles = this.drawCircles(x,y,r)
+
+        // Draw anchor
+        let anchorOptions = this.options.anchor
+        let anchor = this.drawAnchor(anchorOptions)
+
+        // Images
         
+        this.appendEl("outerCircle", circles.outerCircle)
+        this.appendEl("anchor", anchor)
+        this.appendEl("itemsGroup", this.drawItems())
+        this.appendEl("images", this.drawImages())
+        this.appendEl("innerCircle", circles.innerCircle)
+
+        let transformOrigin = {
+            x: anchorOptions.positionAngle > 270 || anchorOptions.positionAngle <= 90 ? 0 : 100,
+            y: anchorOptions.positionAngle < 180 ? 0 : 100
+        }
+        
+        anchor.style.transformOrigin = `${transformOrigin.x}% ${transformOrigin.y}%`
+        anchor.style.transformBox = `fill-box`
+
+    }
+    
+    private drawImages() {
+        let defs = createElementNS("defs", {  })
+        this.options.items.forEach((item,i) => {
+            if(!item.image) return
+            let pieBbox = document.querySelector<SVGGraphicsElement>("#pie-"+i).getBBox()
+            
+            let pattern = createElementNS("pattern", { id: `image-${i}`, patternUnits: "userSpaceOnUse", x:pieBbox.x, y:pieBbox.y, width: pieBbox.width, height: pieBbox.height })
+            let image: SVGImageElement
+            if(typeof item.image == "string")
+                image = createElementNS("image", { "xlink:href": item.image, width: this.getRadius(), height: this.getRadius() })
+            else if(item.image instanceof HTMLImageElement) 
+                image = createElementNS("image", { "xlink:href": item.image.src, width: this.getRadius(), height: this.getRadius() })
+            else image = item.image
+            
+            pattern.appendChild(image)
+            defs.appendChild(pattern)
+        })
+
+        return defs
+    }
+
+    private drawAnchor(anchorOptions) {
+        let anchor: SVGGeometryElement
+        if(anchorOptions.type == 'line') {
+            let arrowStartPoint = this.getCenterPoint()
+            let arrowEndPoint = this.getArcCoordinate(anchorOptions.positionAngle, anchorOptions.length)
+    
+            anchor = createElementNS("line", { 
+                class: 'rolloc__arrow', 
+                x1: arrowStartPoint.x, 
+                x2: arrowEndPoint.x, 
+                y1: arrowStartPoint.y, 
+                y2: arrowEndPoint.y, 
+                stroke: 'black'
+            })
+        }
+        return anchor
+    }
+
+    private drawCircles(x: number, y: number, r: number) {
         let outerCircle = createElementNS("circle", { 
             class: "rolloc__outer-circle", 
             cx: x.toString(), 
@@ -80,35 +145,10 @@ export default class Rolloc {
             stroke: "#333", 
         })
 
-        // Draw anchor
-        let anchorOptions = this.options.anchor
-        let anchor: SVGGeometryElement
-        if(anchorOptions.type == 'line') {
-            let arrowStartPoint = this.getCenterPoint()
-            let arrowEndPoint = this.getArcCoordinate(anchorOptions.positionAngle, anchorOptions.length)
-    
-            anchor = createElementNS("line", { 
-                class: 'rolloc__arrow', 
-                x1: arrowStartPoint.x, 
-                x2: arrowEndPoint.x, 
-                y1: arrowStartPoint.y, 
-                y2: arrowEndPoint.y, 
-                stroke: 'black'
-            })
+        return {
+            outerCircle,
+            innerCircle
         }
-        
-        this.appendEl("outerCircle", outerCircle)
-        this.appendEl("anchor", anchor)
-        this.appendEl("itemsGroup", this.drawItems())
-        this.appendEl("innerCircle", innerCircle)
-
-        let transformOrigin = {
-            x: anchorOptions.positionAngle > 270 || anchorOptions.positionAngle <= 90 ? 0 : 100,
-            y: anchorOptions.positionAngle < 180 ? 0 : 100
-        }
-        anchor.setAttribute('style',`transform-origin: ${transformOrigin.x}% ${transformOrigin.y}%; 
-                                    transform-box: fill-box;
-                                    `)
     }
 
     private drawItems() {
@@ -129,12 +169,19 @@ export default class Rolloc {
 
             // Convert it to coordinate
             let pie = this.drawPie(deg.start, deg.end, r)
+            pie.setAttribute("id","pie-"+i)
+
             let text = this.drawText(item.text, deg.start, deg.end, r)
+
+            // Fill image if there is any
+            if(item.image) 
+                pie.setAttribute("fill", `url(#image-${i})`)
             
             itemEl.appendChild(text)
             itemEl.appendChild(pie)
             gEl.appendChild(itemEl)
         }
+        
         return gEl
     }
 
@@ -164,7 +211,11 @@ export default class Rolloc {
         return textEl
     }
 
-    appendEl<T extends SVGGraphicsElement>(name: string, el: T) {
+    private getRadius() {
+        return (this.options.size/2) - this.options.padding * 2
+    }
+
+    private appendEl<T extends SVGGraphicsElement>(name: string, el: T) {
         this.el.appendChild(el as SVGGraphicsElement)   
         this.elements[name] = el
     }
@@ -217,6 +268,7 @@ export default class Rolloc {
         
         let rotateAmount = duration * ((Math.random() * 2) + 1)
         this.degreeRotated += rotateAmount 
+        console.log(anchor)
         
         anchor.animate(
             [
@@ -228,6 +280,8 @@ export default class Rolloc {
                 easing: "cubic-bezier(0.16, 1, 0.3, 1)"
             }
         )
+        console.log("animating");
+        
 
         return new Promise<RollocItem>((resolve) => 
             setTimeout(() => resolve(this.getResult()), duration)
@@ -250,7 +304,12 @@ export default class Rolloc {
 function createElementNS<T extends keyof SVGElementTagNameMap>(name: T, props: {[key: string]: string|number}, content: string = ""): SVGElementTagNameMap[T] {
     let el = document.createElementNS(Rolloc.ns, name)
     
-    Object.keys(props).forEach(p => el.setAttribute(p, props[p].toString()))
+    for(let key in props) {
+        if(key=="xlink:href")
+            el.setAttributeNS("http://www.w3.org/1999/xlink", "href", props[key].toString())
+        else 
+            el.setAttributeNS(null,key, props[key].toString())
+    }
     el.innerHTML = content
     
     return el

@@ -47,7 +47,7 @@ export interface RollOptions {
 export interface RollocItem {
     value: string
     text?: string
-    image?: string
+    image?: HTMLImageElement | SVGImageElement | string
 
     startAngle?: number
     endAngle?: number
