@@ -1,4 +1,4 @@
-import { RollocOptions, RollOptions } from "./types";
+import { AnchorOptions, RollocOptions, RollOptions } from "./types";
 import type { Coordinate, RollocItem } from "./types"
 
 const defaultOptions: RollocOptions = {
@@ -110,7 +110,7 @@ export default class Rolloc {
         return defs
     }
 
-    private drawAnchor(anchorOptions) {
+    private drawAnchor(anchorOptions: AnchorOptions) {
         let anchor: SVGGeometryElement
         if(anchorOptions.type == 'line') {
             let arrowStartPoint = this.getCenterPoint()
@@ -124,7 +124,26 @@ export default class Rolloc {
                 y2: arrowEndPoint.y, 
                 stroke: 'black'
             })
+        } else if (anchorOptions.type == "triangle") {
+            let r = this.getRadius()
+    
+            let points = [
+                this.getArcCoordinate(anchorOptions.positionAngle - anchorOptions.size / 2, r),
+                this.getArcCoordinate(anchorOptions.positionAngle + anchorOptions.size / 2, r - 40),
+                this.getArcCoordinate(anchorOptions.positionAngle + anchorOptions.size , r)
+            ]
+            console.log(points);
+            
+            let d = [
+                `M`, points[0].x, points[0].y,
+                `L`, points[1].x, points[1].y,
+                `L`, points[2].x, points[2].y,
+                `A`, r, r, 0,0,0, points[0].x, points[0].y,
+            ].join(" ")
+
+            anchor = createElementNS("path", { d, stroke: anchorOptions.stroke ?? "black", fill: anchorOptions.fill ?? "#3aad36", class: "rolloc__anchor" })
         }
+
         return anchor
     }
 

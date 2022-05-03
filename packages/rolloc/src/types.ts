@@ -30,7 +30,12 @@ interface AnchorTriangleOptions {
     type: "triangle"
     positionAngle?: number
     length?: number
+    size?: number
+    stroke?: string
+    fill?: string
 }
+
+export type AnchorOptions = AnchorLineOptions | AnchorTriangleOptions
 
 export interface RollOptions {
     /**
